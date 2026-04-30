@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(__dirname));
 
-const rooms = {}; // { roomId: { board, players, turn } }
+const rooms = {};
 
 io.on('connection', (socket) => {
     console.log('Новый игрок подключился');
@@ -49,7 +49,7 @@ io.on('connection', (socket) => {
         room.turn = (symbol === 'X') ? 'O' : 'X';
         io.to(roomId).emit('moveMade', { index, symbol, turn: room.turn });
 
-        // Проверка победы (опционально)
+    
         const winner = checkWinner(room.board);
         if (winner) {
             io.to(roomId).emit('gameOver', { winner });
@@ -61,7 +61,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        // Очистка комнат, если игрок ушёл
         for (let roomId in rooms) {
             const room = rooms[roomId];
             const index = room.players.findIndex(p => p.id === socket.id);
@@ -95,3 +94,24 @@ app.get('*', (req, res) => {
 });
 
 server.listen(PORT, () => console.log(`Сервер на порту ${PORT}`));
+socket.on('rematch', ({ roomId }) => {
+    const room = rooms[roomId];
+    if (!room) return;
+    
+    room.board = Array(9).fill('');
+    room.turn = 'X';
+    
+
+    if (room.players.length === 2) {
+        const [player1, player2] = room.players;
+        const temp = player1.symbol;
+        player1.symbol = player2.symbol;
+        player2.symbol = temp;
+    }
+  
+    io.to(roomId).emit('rematchAccepted', {
+        board: room.board,
+        turn: room.turn,
+        players: room.players
+    });
+});
