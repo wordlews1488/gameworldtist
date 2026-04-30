@@ -68,10 +68,10 @@
         <div class="nolik">
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 <script>
-    const socket = io();   // 👈 без localhost, сам определит адрес
+    const socket = io(); 
 
     let board = Array(9).fill("");
-    let mySymbol = null;   // 'X' или 'O'
+    let mySymbol = null; 
     let currentTurn = "X";
     let roomId = "";
     let gameActive = false;
