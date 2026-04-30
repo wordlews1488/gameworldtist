@@ -74,40 +74,17 @@ io.on('connection', (socket) => {
     });
 });
 
-socket.on('rematch', ({ roomId }) => {
-        const room = rooms[roomId];
-        if (!room) return;
-        room.board = Array(9).fill('');
-        room.turn = 'X';
-        io.to(roomId).emit('rematchStarted', { board: room.board, turn: room.turn });
-    });
-
-    socket.on('disconnect', () => {
-        console.log('❌ Игрок отключился', socket.id);
-        for (let roomId in rooms) {
-            const room = rooms[roomId];
-            const index = room.players.findIndex(p => p.id === socket.id);
-            if (index !== -1) {
-                room.players.splice(index, 1);
-                io.to(roomId).emit('opponentLeft');
-                if (room.players.length === 0) delete rooms[roomId];
-                break;
-            }
-        }
-    });
-});
-
 function checkWinner(board) {
-    const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    const lines = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+    ];
     for (let line of lines) {
         const [a,b,c] = line;
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return board[a];
+        }
     }
     return null;
 }
-
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'nolik.html'));
-});
-
-server.listen(PORT, () => console.log(`🚀 Сервер на порту ${PORT}`));
