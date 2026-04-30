@@ -75,6 +75,13 @@ io.on('connection', (socket) => {
 });
 
 function checkWinner(board) {
+    socket.on('rematch', ({ roomId }) => {
+    const room = rooms[roomId];
+    if (!room) return;
+    room.board = Array(9).fill('');
+    room.turn = 'X';
+    io.to(roomId).emit('rematch', { board: room.board, turn: room.turn });
+});
     const lines = [
         [0,1,2], [3,4,5], [6,7,8],
         [0,3,6], [1,4,7], [2,5,8],
@@ -88,30 +95,21 @@ function checkWinner(board) {
     }
     return null;
 }
+const rematchBtn = document.getElementById('rematchBtn');
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'nolik.html'));
+socket.on('gameOver', () => {
+    rematchBtn.style.display = 'inline-block';
 });
 
-server.listen(PORT, () => console.log(`Сервер на порту ${PORT}`));
-socket.on('rematch', ({ roomId }) => {
-    const room = rooms[roomId];
-    if (!room) return;
-    
-    room.board = Array(9).fill('');
-    room.turn = 'X';
-    
-
-    if (room.players.length === 2) {
-        const [player1, player2] = room.players;
-        const temp = player1.symbol;
-        player1.symbol = player2.symbol;
-        player2.symbol = temp;
-    }
-  
-    io.to(roomId).emit('rematchAccepted', {
-        board: room.board,
-        turn: room.turn,
-        players: room.players
-    });
+socket.on('rematch', ({ board: newBoard, turn }) => {
+    board = [...newBoard];
+    currentTurn = turn;
+    gameActive = true;
+    render();
+    rematchBtn.style.display = 'none';
 });
+
+rematchBtn.onclick = () => {
+    socket.emit('rematch', { roomId });
+    rematchBtn.style.display = 'none';
+};
