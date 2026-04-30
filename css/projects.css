@@ -1,0 +1,210 @@
+@import url(null.css);
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+ul,ol {
+    list-style: none;
+}
+a {
+    text-decoration: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Adjusted", "Segoe UI", "Liberation Sans", sans-serif;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Adjusted", "Segoe UI", "Liberation Sans", sans-serif;
+}
+/*==========================*/
+/*        styles            */
+/*==========================*/
+.header-navbar {
+    display: flex;
+    background: #131313;
+    padding: 25px;
+    color: white;
+}
+.wrapper-a{
+    margin-left: 440px;
+    font-size: 20px;
+    color: white;
+}
+.wrapper-ul{
+    display: flex;
+    gap: 20px;
+    margin-left: 600px;
+    padding-top: 7px;
+}
+.wrapper-home{
+    color: white;
+}
+.wrapper-contacts{
+    color: white;
+}
+.wrapper-project{
+    color: white;
+}
+.wrapper-major{
+    color: white;
+}
+.wrapper-nolik{
+    color: white;
+}
+.wrapper-img{
+    border-radius: 8px;
+    margin-left: 370px;
+    margin-top: 150px;
+
+}
+.wrapper-div{
+}
+.list-p2{
+    text-align: center;
+    color: red;
+    font-size: 32px;
+    margin-top: 100px;
+}
+.list-p{
+    margin-top: 2px;
+    margin-left: 370px;
+    font-size: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    width: 375px;
+    border-radius: 10px;
+}
+.list-p3{
+    position: absolute;
+    margin-left: 770px;
+    font-size: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    width: 375px;
+    border-radius: 10px;
+    top: 645px;
+}
+.wrapper-img2{
+    border-radius: 8px;
+    margin-left: 770px;
+    margin-bottom: 250px;
+    position: absolute;
+    top: 360px;
+}
+.wrapper-img3{
+    border-radius: 8px;
+    margin-left: 770px;
+    margin-bottom: 250px;
+    position: absolute;
+    top: 360px;
+    left: 400px;
+}
+.list-p4{
+    position: absolute;
+    margin-left: 770px;
+    font-size: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    width: 375px;
+    border-radius: 10px;
+    top: 645px;
+    left: 400px;
+}
+.list-p5{
+    position: absolute;
+    margin-left: 770px;
+    font-size: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    width: 375px;
+    border-radius: 10px;
+    top: 1035px;
+    left: -400px;
+}
+.wrapper-img4{
+    border-radius: 8px;
+    margin-left: 770px;
+    margin-bottom: 250px;
+    position: absolute;
+    top: 750px;
+    left: -400px;
+}
+.wrapper-img5{
+    border-radius: 8px;
+    margin-left: 770px;
+    margin-bottom: 250px;
+    position: absolute;
+    top: 750px;
+    left: -0px;
+}
+.list-p6{
+    position: absolute;
+    margin-left: 770px;
+    font-size: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    width: 375px;
+    border-radius: 10px;
+    top: 1035px;
+    left: -0px;
+}
+.wrapper-img6{
+    border-radius: 8px;
+    margin-left: 770px;
+    margin-bottom: 250px;
+    position: absolute;
+    top: 750px;
+    left: 400px;
+}
+.list-p7{
+    position: absolute;
+    margin-left: 770px;
+    font-size: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    width: 375px;
+    border-radius: 10px;
+    top: 1035px;
+    left: 400px;
+}
+.wrapper-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #131313;
+    padding: 60px;
+    margin-top: 450px;
+}
+.elem-year{
+    color: white;
+    text-align: center;
+    margin-top: 13px;
+}
+.elem-site{
+    padding-left: 20px;
+}
+.gradient {
+    width: 100%;
+    background: linear-gradient(149deg, rgba(24,187,156,1) 0%, rgba(106,57,175,1) 42%, rgba(187,24,148,1) 72%, rgba(115,53,134,1) 100%);
+    animation: gradient 10s infinite linear;
+    background-size: 400%;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 80% 0%;
+    }
+    50% {
+        background-position: 20% 100%;
+    }
+    100% {
+        background-position: 80% 0%;
+    }
+}

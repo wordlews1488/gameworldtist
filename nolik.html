@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Крестики Нолики</title>
+    <link rel="stylesheet" href="css/nolik.css">
+    <title>Крестики-нолики онлайн</title>
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            font-size: 40px;
+            text-align: center;
+            line-height: 100px;
+            background: #eee;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="gradient">
+    <header class="wrapper-header">
+        <div class="header-container">
+            <nav class="header-navbar">
+                <a href="index.html" class="wrapper-a"><b>Game</b> World</a>
+                <ul class="wrapper-ul">
+                    <li class="elem-li">
+                        <a class="wrapper-home" href="index.html">Home</a>
+                    </li>
+                    <li class="elem-li">
+                        <a class="wrapper-project" href="project.html">Projects</a>
+                    </li>
+                    <li class="elem-li">
+                        <a class="wrapper-contacts" href="contacs.html">Contacts</a>
+                    </li>
+                    <li class="elem-li">
+                        <a href="Major.html" class="wrapper-major">Major 2020</a>
+                    </li>
+                    <li class="elem-li">
+                        <a href="nolik.html" class="wrapper-nolik"style="border-bottom: 1px solid red">Game</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="wrapper-main">
+<div class="nolik-comnata">
+        <div class="comnata">
+            <h2>Комната:</h2>
+
+            <input id="roomInput" placeholder="Введите код">
+
+            <button onclick="joinRoom()">Подключиться</button>
+            <button onclick="createRoom()">Создать комнату</button>
+
+<div class="board" id="board"></div>
+
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</div>
+        <div class="nolik">
+<script>
+    const socket = io("http://localhost:3000");
+
+    let board = Array(9).fill("");
+    let player = "X";
+    let currentPlayer = "X";
+    let room = "";
+
+    const boardEl = document.getElementById("board");
+
+    function render() {
+        boardEl.innerHTML = "";
+        board.forEach((cell, i) => {
+            const div = document.createElement("div");
+            div.className = "cell";
+            div.innerText = cell;
+            div.onclick = () => makeMove(i);
+            boardEl.appendChild(div);
+        });
+    }
+
+    function joinRoom() {
+        room = document.getElementById("roomInput").value;
+        socket.emit("joinRoom", room);
+    }
+
+    function makeMove(index) {
+        if (board[index] !== "" || player !== currentPlayer) return;
+
+        board[index] = player;
+        socket.emit("move", { room, index, player });
+
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        render();
+    }
+
+    socket.on("move", ({ index, player: p }) => {
+        board[index] = p;
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        render();
+    });
+    function createRoom() {
+        room = Math.floor(1000 + Math.random() * 9000).toString(); // 4 цифры
+        document.getElementById("roomInput").value = room;
+
+        socket.emit("joinRoom", room);
+
+        alert("Комната создана: " + room);
+    }
+
+    render();
+</script>
+            </div>
+        </div>
+    </main>
+<script src="js/nolik.js"></script>
+    <footer class="wrapper-footer">
+        <div class="footer-container">
+            <a target="_blank" href="https://www.instagram.com/">
+                <img class="elem-site" src="img/icons/instagram.svg" alt="">
+            </a>
+            <a target="_blank" href="https://x.com/i/flow/login?input_flow_data=%7B%22requested_variant%22%3A%22eyJsYW5nIjoicnUifQ%3D%3D%22%7D">
+                <img class="elem-site" src="img/icons/twitter.svg" alt="">
+            </a>
+            <a target="_blank" href="https://github.com/">
+                <img class="elem-site" src="img/icons/gitHub.svg" alt="">
+            </a>
+            <a target="_blank" href="https://www.linkedin.com/">
+                <img class="elem-site" src="img/icons/linkedIn.svg" alt="">
+            </a>
+            <p class="elem-year">© 2024</p>
+        </div>
+    </footer>
+</div>
+</body>
+</html>
