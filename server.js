@@ -1,37 +1,16 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-
+const express = require('express');
+const path = require('path');
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const PORT = process.env.PORT || 3000;
 
-let rooms = {};
+// Отдаём все статические файлы (css, js, картинки, html)
+app.use(express.static(__dirname));
 
-io.on("connection", (socket) => {
-    console.log("Игрок подключился");
-
-    socket.on("joinRoom", (room) => {
-        socket.join(room);
-
-        if (!rooms[room]) {
-            rooms[room] = [];
-        }
-
-        rooms[room].push(socket.id);
-
-        io.to(room).emit("players", rooms[room]);
-    });
-
-    socket.on("move", ({ room, index, player }) => {
-        socket.to(room).emit("move", { index, player });
-    });
-
-    socket.on("disconnect", () => {
-        console.log("Игрок отключился");
-    });
+// Если запрос не найден среди статики, отдаём index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-server.listen(3000, () => {
-    console.log("Сервер запущен на http://localhost:3000");
+app.listen(PORT, () => {
+    console.log(`Сервер запущен на порту ${PORT}`);
 });
