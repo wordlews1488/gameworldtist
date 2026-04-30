@@ -54,106 +54,116 @@
     <main class="wrapper-main">
 <div class="nolik-comnata">
         <div class="comnata">
-            <h2>Комната:</h2>
+<input type="text" id="roomInput" placeholder="Код комнаты" autocomplete="off">
+        <button onclick="joinRoom()">Войти</button>
+        <button onclick="createRoom()">Создать комнату</button>
+    </div>
+    <div class="board" id="board"></div>
+    <div id="status"></div>
+    <button id="rematchBtn" style="display:none;">🔄 Рематч</button>
 
-            <input id="roomInput" placeholder="Введите код">
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        let board = Array(9).fill("");
+        let mySymbol = null;
+        let currentTurn = "X";
+        let roomId = "";
+        let gameActive = false;
 
-            <button onclick="joinRoom()">Подключиться</button>
-            <button onclick="createRoom()">Создать комнату</button>
+        const boardDiv = document.getElementById("board");
+        const statusDiv = document.getElementById("status");
+        const rematchBtn = document.getElementById("rematchBtn");
 
-<div class="board" id="board"></div>
+        function renderBoard() {
+            boardDiv.innerHTML = "";
+            board.forEach((cell, i) => {
+                const cellDiv = document.createElement("div");
+                cellDiv.className = "cell";
+                cellDiv.innerText = cell;
+                cellDiv.onclick = () => tryMove(i);
+                boardDiv.appendChild(cellDiv);
+            });
+        }
 
-<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-</div>
-        <div class="nolik">
-<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-<script>
-    const socket = io(); 
+        function tryMove(index) {
+            if (!gameActive) return;
+            if (board[index] !== "") return;
+            if (mySymbol !== currentTurn) return;
+            socket.emit("makeMove", { roomId, index, symbol: mySymbol });
+        }
 
-    let board = Array(9).fill("");
-    let mySymbol = null; 
-    let currentTurn = "X";
-    let roomId = "";
-    let gameActive = false;
+        function joinRoom() {
+            roomId = document.getElementById("roomInput").value.trim();
+            if (!roomId) return alert("Введите код комнаты");
+            socket.emit("joinRoom", roomId);
+            statusDiv.innerText = "Подключение...";
+        }
 
-    const boardEl = document.getElementById("board");
-    const statusDiv = document.createElement("div");
-    boardEl.parentNode.insertBefore(statusDiv, boardEl);
+        function createRoom() {
+            roomId = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById("roomInput").value = roomId;
+            socket.emit("joinRoom", roomId);
+            statusDiv.innerText = "Создаём комнату...";
+        }
 
-    function render() {
-        boardEl.innerHTML = "";
-        board.forEach((cell, i) => {
-            const div = document.createElement("div");
-            div.className = "cell";
-            div.innerText = cell;
-            div.onclick = () => makeMove(i);
-            boardEl.appendChild(div);
+        socket.on("assigned", ({ symbol, roomId: id }) => {
+            roomId = id;
+            mySymbol = symbol;
+            statusDiv.innerText = `Комната ${roomId}. Ваш символ: ${mySymbol}. Ждём второго игрока...`;
+            rematchBtn.style.display = "none";
         });
-    }
 
-    function joinRoom() {
-        roomId = document.getElementById("roomInput").value.trim();
-        if (!roomId) return alert("Введите код комнаты");
-        socket.emit("joinRoom", roomId);
-        statusDiv.innerText = "Подключение...";
-    }
+        socket.on("start", ({ board: serverBoard, turn }) => {
+            board = [...serverBoard];
+            currentTurn = turn;
+            gameActive = true;
+            renderBoard();
+            statusDiv.innerText = `Игра началась! Ход: ${currentTurn}`;
+            rematchBtn.style.display = "none";
+        });
 
-    function createRoom() {
-        roomId = Math.floor(1000 + Math.random() * 9000).toString();
-        document.getElementById("roomInput").value = roomId;
-        socket.emit("joinRoom", roomId);
-        statusDiv.innerText = "Создание комнаты...";
-    }
+        socket.on("moveMade", ({ index, symbol, turn }) => {
+            board[index] = symbol;
+            currentTurn = turn;
+            renderBoard();
+            statusDiv.innerText = `Ход: ${currentTurn}`;
+        });
 
-    function makeMove(index) {
-        if (!gameActive) return;
-        if (board[index] !== "") return;
-        if (mySymbol !== currentTurn) return;
-        socket.emit("makeMove", { roomId, index, symbol: mySymbol });
-    }
+        socket.on("gameOver", ({ winner }) => {
+            gameActive = false;
+            if (winner === "draw") statusDiv.innerText = "Ничья!";
+            else statusDiv.innerText = `🏆 Победил ${winner}! 🏆`;
+            rematchBtn.style.display = "inline-block";
+        });
 
-    socket.on("assigned", ({ symbol, roomId: id }) => {
-        roomId = id;
-        mySymbol = symbol;
-        statusDiv.innerText = `Вы в комнате ${roomId}. Ваш символ: ${mySymbol}. Ожидаем второго игрока...`;
-    });
+        socket.on("opponentLeft", () => {
+            gameActive = false;
+            statusDiv.innerText = "❌ Соперник вышел. Создайте новую комнату.";
+            board.fill("");
+            renderBoard();
+            rematchBtn.style.display = "none";
+        });
 
-    socket.on("roomFull", ({ message }) => {
-        alert(message);
-    });
+        socket.on("error", (msg) => alert(msg));
+        
+        socket.on("rematchStarted", ({ board: newBoard, turn }) => {
+            board = [...newBoard];
+            currentTurn = turn;
+            gameActive = true;
+            renderBoard();
+            statusDiv.innerText = `Рематч! Ход: ${currentTurn}`;
+            rematchBtn.style.display = "none";
+        });
 
-    socket.on("start", ({ board: serverBoard, turn }) => {
-        board = [...serverBoard];
-        currentTurn = turn;
-        gameActive = true;
-        render();
-        statusDiv.innerText = `Игра началась! Ход: ${currentTurn}`;
-    });
+        rematchBtn.onclick = () => {
+            socket.emit("rematch", { roomId });
+            statusDiv.innerText = "Ждём переигровки...";
+            rematchBtn.style.display = "none";
+        };
 
-    socket.on("moveMade", ({ index, symbol, turn }) => {
-        board[index] = symbol;
-        currentTurn = turn;
-        render();
-        statusDiv.innerText = `Ход: ${currentTurn}`;
-    });
-
-    socket.on("gameOver", ({ winner }) => {
-        gameActive = false;
-        if (winner === "draw") statusDiv.innerText = "Ничья!";
-        else statusDiv.innerText = `Победил ${winner}!`;
-        board.fill("");
-        render();
-    });
-
-    socket.on("opponentLeft", () => {
-        gameActive = false;
-        statusDiv.innerText = "Соперник отключился. Создайте новую комнату.";
-        board.fill("");
-        render();
-    });
-
-    render();
-</script>
+        renderBoard();
+    </script>
             </div>
         </div>
     </main>
